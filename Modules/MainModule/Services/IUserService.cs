@@ -6,5 +6,6 @@ namespace Modules.MainModule.Services
         Task<IResult> GetAll();
         Task<IResult> Login(UserDto userDto);
         Task<IResult> Register(UserRegister user);
+        Task<IResult> Info(HttpContext httpContext);
     }
 }

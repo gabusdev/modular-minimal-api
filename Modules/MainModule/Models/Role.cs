@@ -7,12 +7,12 @@ namespace Modules.MainModule.Models
     {
         public Role()
         {
-            UserRols = new HashSet<UserRol>();
+            Users = new HashSet<User>();
         }
 
         public string Name { get; set; } = null!;
         public int Id { get; set; }
 
-        public virtual ICollection<UserRol> UserRols { get; set; }
+        public virtual ICollection<User> Users { get; set; }
     }
 }

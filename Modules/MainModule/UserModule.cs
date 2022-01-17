@@ -19,6 +19,8 @@ namespace Modules.MainModule
                 .RequireAuthorization("Admin")
                 .Produces(StatusCodes.Status200OK)
                 .WithTags("User");
+            endpoints.MapGet("/api/v1/User/info", (IUserService service, HttpContext httpContext) =>
+                service.Info(httpContext));
             endpoints.MapPost("/api/v1/User/login", (UserDto userDto, IUserService service) =>
                 service.Login(userDto))
                 .AllowAnonymous()

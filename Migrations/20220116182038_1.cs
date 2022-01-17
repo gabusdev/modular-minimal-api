@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace modular.Migrations
 {
-    public partial class First : Migration
+    public partial class _1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,34 @@ namespace modular.Migrations
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.CreateTable(
-                name: "Todo",
+                name: "RoleUser",
+                columns: table => new
+                {
+                    RolesId = table.Column<int>(type: "int", nullable: false),
+                    UsersId = table.Column<string>(type: "varchar(40)", nullable: false, collation: "utf8mb4_0900_ai_ci")
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleUser", x => new { x.RolesId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_RoleUser_Roles_RolesId",
+                        column: x => x.RolesId,
+                        principalTable: "Roles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoleUser_User_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.CreateTable(
+                name: "TodoItem",
                 columns: table => new
                 {
                     id = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_0900_ai_ci")
@@ -62,7 +89,7 @@ namespace modular.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Todo", x => x.id);
+                    table.PrimaryKey("PK_TodoItem", x => x.id);
                     table.ForeignKey(
                         name: "Fk_User",
                         column: x => x.user_id,
@@ -73,36 +100,14 @@ namespace modular.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4")
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
-            migrationBuilder.CreateTable(
-                name: "User_Rol",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    user_id = table.Column<string>(type: "varchar(40)", maxLength: 40, nullable: false, collation: "utf8mb4_0900_ai_ci")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    roles_id = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User_Rol", x => x.id);
-                    table.ForeignKey(
-                        name: "User_Rol_Fk_Rol",
-                        column: x => x.roles_id,
-                        principalTable: "Roles",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "User_Rol_Fk_User",
-                        column: x => x.user_id,
-                        principalTable: "User",
-                        principalColumn: "id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4")
-                .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleUser_UsersId",
+                table: "RoleUser",
+                column: "UsersId");
 
             migrationBuilder.CreateIndex(
                 name: "Fk_User",
-                table: "Todo",
+                table: "TodoItem",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
@@ -110,25 +115,15 @@ namespace modular.Migrations
                 table: "User",
                 columns: new[] { "username", "mail" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "User_Rol_Fk_Rol",
-                table: "User_Rol",
-                column: "roles_id");
-
-            migrationBuilder.CreateIndex(
-                name: "User_Rol_Fk_User",
-                table: "User_Rol",
-                column: "user_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Todo");
+                name: "RoleUser");
 
             migrationBuilder.DropTable(
-                name: "User_Rol");
+                name: "TodoItem");
 
             migrationBuilder.DropTable(
                 name: "Roles");

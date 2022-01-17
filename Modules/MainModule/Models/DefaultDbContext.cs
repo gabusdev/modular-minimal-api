@@ -19,7 +19,7 @@ namespace Modules.MainModule.Models
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Todo> Todos { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
-        public virtual DbSet<UserRol> UserRols { get; set; } = null!;
+        // public virtual DbSet<UserRol> UserRols { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,7 +37,7 @@ namespace Modules.MainModule.Models
 
             modelBuilder.Entity<Todo>(entity =>
             {
-                entity.ToTable("Todo");
+                entity.ToTable("TodoItem");
 
                 entity.HasIndex(e => e.UserId, "Fk_User");
 
@@ -83,35 +83,9 @@ namespace Modules.MainModule.Models
                 entity.Property(e => e.Username)
                     .HasMaxLength(20)
                     .HasColumnName("username");
-            });
 
-            modelBuilder.Entity<UserRol>(entity =>
-            {
-                entity.ToTable("User_Rol");
-
-                entity.HasIndex(e => e.RolesId, "User_Rol_Fk_Rol");
-
-                entity.HasIndex(e => e.UserId, "User_Rol_Fk_User");
-
-                entity.Property(e => e.Id).HasColumnName("id");
-
-                entity.Property(e => e.RolesId).HasColumnName("roles_id");
-
-                entity.Property(e => e.UserId)
-                    .HasMaxLength(40)
-                    .HasColumnName("user_id");
-
-                entity.HasOne(d => d.Roles)
-                    .WithMany(p => p.UserRols)
-                    .HasForeignKey(d => d.RolesId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("User_Rol_Fk_Rol");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserRols)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("User_Rol_Fk_User");
+                entity.HasMany(u => u.Roles)
+                    .WithMany(r => r.Users);
             });
 
             OnModelCreatingPartial(modelBuilder);
