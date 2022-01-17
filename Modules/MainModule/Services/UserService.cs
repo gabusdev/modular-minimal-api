@@ -20,11 +20,11 @@ namespace Modules.MainModule.Services
 
         public async Task<IResult> GetAll()
         {
-            return Results.Ok(await _context.Users.ToListAsync());
+            return Results.Ok(await _context.Users.Include(u => u.Roles).Include(u => u.Todos).ToListAsync());
         }
         public async Task<IResult> Login(UserDto userDto)
         {
-            User? user = await _context.Users.FirstOrDefaultAsync(u =>
+            User? user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u =>
                 u.Username.ToLower().Equals(userDto.UserOrMail.ToLower()) ||
                 u.Mail.ToLower().Equals(userDto.UserOrMail));
             if (user is not null)
@@ -60,15 +60,19 @@ namespace Modules.MainModule.Services
                 Mail = userRegist.Mail
 
             };
-            await _context.Users.AddAsync(newUser);
             Role userRole = (await _context.Roles.FirstOrDefaultAsync(r => r.Name == "User"))!;
-            // await _context.UserRols.AddAsync(userRol);
-            await _context.SaveChangesAsync();
             newUser.Roles.Add(userRole);
+            await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
 
+            return await _context.Users.Include(u => u.Roles).FirstAsync(u => u.Id == newUser.Id)
+                is User user
+                ? Results.Created($"/User/{user.Id}", user)
+                : Results.Problem("No se ha podido registrar")
+                ;
+            // newUser = await _context.Users.FindAsync(newUser.Id);
 
-            return Results.Created($"/User/{newUser.Id}", newUser);
+            // return Results.Created($"/User/{newUser.Id}", newUser);
         }
         public async Task<IResult> Info(HttpContext httpContext)
         {

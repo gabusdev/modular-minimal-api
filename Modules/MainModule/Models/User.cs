@@ -20,9 +20,9 @@ namespace Modules.MainModule.Models
         public string Pass { get; set; } = null!;
 
 
-        [JsonIgnore]
+        // [JsonIgnore]
         public virtual ICollection<Todo> Todos { get; set; }
-        [JsonIgnore]
+        // [JsonIgnore]
         public virtual ICollection<Role> Roles { get; set; }
     }
 }
