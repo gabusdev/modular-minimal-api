@@ -1,6 +1,8 @@
 using Modules.MainModule.Models;
 using Modules.AuthenticationUtilsModule.Services;
 using Modules.MainModule.Services;
+using Modules.MainModule.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 namespace Modules.MainModule
 {
@@ -8,6 +10,11 @@ namespace Modules.MainModule
     {
         public IServiceCollection RegisterModule(IServiceCollection service, IConfiguration config)
         {
+            service.AddDbContext<DefaultDbContext>(opt =>
+                opt.UseMySql(
+                    config.GetConnectionString("DefaultConnection"),
+                    new MySqlServerVersion(new Version(8, 0, 27))
+            ));
             service.AddTransient<IAuthenticationService, AuthenticationService>();
             service.AddScoped<IUserService, UserService>();
             return service;

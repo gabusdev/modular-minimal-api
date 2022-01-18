@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Modules.MainModule.Models
+namespace Modules.MainModule.Entities
 {
     public partial class User
     {
@@ -16,7 +16,6 @@ namespace Modules.MainModule.Models
         public string Id { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string Mail { get; set; } = null!;
-        [JsonIgnore]
         public string Pass { get; set; } = null!;
 
 

@@ -7,3 +7,4 @@ codeship.aes
 /*.user
 .DS_Store
 /ModelsOld
+/Migrations

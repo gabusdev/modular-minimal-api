@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Modules.MainModule.Models
+namespace Modules.MainModule.Entities
 {
     public partial class Todo
     {

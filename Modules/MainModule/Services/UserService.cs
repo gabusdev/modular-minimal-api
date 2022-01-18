@@ -1,4 +1,5 @@
 // using Microsoft.AspNetCore.Mvc;
+using Modules.MainModule.Entities;
 using Modules.MainModule.Models;
 using Modules.AuthenticationUtilsModule.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,18 +10,23 @@ namespace Modules.MainModule.Services
 
     public class UserService : IUserService
     {
-        private DefaultDbContext _context;
-        private IAuthenticationService _authService;
+        private readonly DefaultDbContext _context;
+        private readonly IAuthenticationService _authService;
 
         public UserService(DefaultDbContext context, IAuthenticationService authService)
         {
             _context = context;
             _authService = authService;
         }
-
         public async Task<IResult> GetAll()
         {
-            return Results.Ok(await _context.Users.Include(u => u.Roles).Include(u => u.Todos).ToListAsync());
+            List<User> users = await _context.Users.Include(u => u.Roles).Include(u => u.Todos).ToListAsync();
+            List<UserViewModel> viewUsers = new List<UserViewModel>();
+            foreach (var item in users)
+            {
+                viewUsers.Add(MakeUserViewModel(item));
+            }
+            return Results.Ok(viewUsers);
         }
         public async Task<IResult> Login(UserDto userDto)
         {
@@ -64,30 +70,57 @@ namespace Modules.MainModule.Services
             newUser.Roles.Add(userRole);
             await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
-
-            return await _context.Users.Include(u => u.Roles).FirstAsync(u => u.Id == newUser.Id)
-                is User user
-                ? Results.Created($"/User/{user.Id}", user)
-                : Results.Problem("No se ha podido registrar")
-                ;
-            // newUser = await _context.Users.FindAsync(newUser.Id);
-
-            // return Results.Created($"/User/{newUser.Id}", newUser);
+            return Results.Ok(MakeUserViewModel(newUser));
         }
         public async Task<IResult> Info(HttpContext httpContext)
         {
             var identity = httpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
             {
-                User? currentUser = await GetCurrent(identity.FindFirst(ClaimTypes.Sid)!.Value);
+                string id = identity.FindFirst(ClaimTypes.Sid)!.Value;
+                UserViewModel currentUser = await MakeUserViewModel(id);
                 return currentUser is null ? Results.BadRequest() : Results.Ok(currentUser);
             }
             return Results.BadRequest();
         }
-
         private async Task<User?> GetCurrent(string id)
         {
             return await _context.Users.FindAsync(id);
+        }
+        private async Task<UserViewModel> MakeUserViewModel(string id)
+        {
+            User user = await _context.Users.Include("Todos").Include("Roles").FirstAsync(u => u.Id == id);
+            return MakeUserViewModel(user);
+        }
+        private UserViewModel MakeUserViewModel(User user)
+        {
+            List<RoleViewModel> viewRoles = new List<RoleViewModel>();
+            foreach (var item in user.Roles)
+            {
+                viewRoles.Add(new RoleViewModel
+                {
+                    Name = item.Name
+                }
+                );
+            }
+            List<TodoViewModel> viewTodos = new List<TodoViewModel>();
+            foreach (var item in user.Todos)
+            {
+                viewTodos.Add(new TodoViewModel
+                {
+                    Name = item.Name,
+                    IsDone = item.IsDone
+                }
+                );
+            }
+            UserViewModel viewUser = new UserViewModel
+            {
+                Username = user.Username,
+                Mail = user.Mail,
+                Roles = viewRoles,
+                Todos = viewTodos
+            };
+            return viewUser;
         }
     }
 }

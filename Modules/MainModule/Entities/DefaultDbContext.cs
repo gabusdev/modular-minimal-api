@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Modules.MainModule.Models
+namespace Modules.MainModule.Entities
 {
     public partial class DefaultDbContext : DbContext
     {

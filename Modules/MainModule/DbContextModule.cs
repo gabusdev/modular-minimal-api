@@ -1,4 +1,4 @@
-using Modules.MainModule.Models;
+using Modules.MainModule.Entities;
 using Microsoft.EntityFrameworkCore;
 namespace Modules.MainModule
 {
