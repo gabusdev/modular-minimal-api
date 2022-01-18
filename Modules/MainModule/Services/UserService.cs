@@ -1,5 +1,5 @@
 // using Microsoft.AspNetCore.Mvc;
-using Modules.MainModule.Entities;
+using Modules.DataModule.Entities;
 using Modules.MainModule.Models;
 using Modules.AuthenticationUtilsModule.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,7 @@ namespace Modules.MainModule.Services
         }
         public async Task<IResult> GetAll()
         {
-            List<User> users = await _context.Users.Include(u => u.Roles).Include(u => u.Todos).ToListAsync();
+            List<User> users = await _context.Users.Include(u => u.Roles).Include(u => u.Todos).AsSplitQuery().ToListAsync();
             List<UserViewModel> viewUsers = new List<UserViewModel>();
             foreach (var item in users)
             {
@@ -30,7 +30,7 @@ namespace Modules.MainModule.Services
         }
         public async Task<IResult> Login(UserDto userDto)
         {
-            User? user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u =>
+            User? user = await _context.Users.Include(u => u.Roles).AsSplitQuery().FirstOrDefaultAsync(u =>
                 u.Username.ToLower().Equals(userDto.UserOrMail.ToLower()) ||
                 u.Mail.ToLower().Equals(userDto.UserOrMail));
             if (user is not null)
@@ -89,7 +89,7 @@ namespace Modules.MainModule.Services
         }
         private async Task<UserViewModel> MakeUserViewModel(string id)
         {
-            User user = await _context.Users.Include("Todos").Include("Roles").FirstAsync(u => u.Id == id);
+            User user = await _context.Users.Include("Todos").Include("Roles").AsSplitQuery().FirstAsync(u => u.Id == id);
             return MakeUserViewModel(user);
         }
         private UserViewModel MakeUserViewModel(User user)

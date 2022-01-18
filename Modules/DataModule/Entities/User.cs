@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Modules.MainModule.Entities
+namespace Modules.DataModule.Entities
 {
     public partial class User
     {

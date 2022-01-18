@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Modules.MainModule.Entities
+namespace Modules.DataModule.Entities
 {
     public partial class Role
     {
