@@ -18,10 +18,7 @@ namespace Modules.MainModule.Entities
         public string Mail { get; set; } = null!;
         public string Pass { get; set; } = null!;
 
-
-        // [JsonIgnore]
         public virtual ICollection<Todo> Todos { get; set; }
-        // [JsonIgnore]
         public virtual ICollection<Role> Roles { get; set; }
     }
 }
