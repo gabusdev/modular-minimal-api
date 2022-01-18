@@ -122,5 +122,29 @@ namespace Modules.MainModule.Services
             };
             return viewUser;
         }
+        public async Task<IResult> Put(UserRegister userRegist, HttpContext httpContext)
+        {
+            var identity = httpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                string id = identity.FindFirst(ClaimTypes.Sid)!.Value;
+                User? currentUser = await GetCurrent(id);
+                if (currentUser is not null)
+                {
+                    currentUser.Username = userRegist.UserName;
+                    currentUser.Mail = userRegist.Mail;
+                    currentUser.Pass = _authService.MakeHash(userRegist.Password);
+                    _context.Entry(currentUser).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    return await Login(new UserDto
+                    {
+                        UserOrMail = userRegist.UserName,
+                        Password = userRegist.Password
+                    });
+                }
+                return Results.NotFound();
+            }
+            return Results.BadRequest();
+        }
     }
 }

@@ -19,7 +19,9 @@ namespace Modules.MainModule
                 .Produces(StatusCodes.Status200OK)
                 .WithTags("User");
             endpoints.MapGet("/api/v1/User/info", (IUserService service, HttpContext httpContext) =>
-                service.Info(httpContext));
+                service.Info(httpContext))
+                .Produces<UserViewModel>(StatusCodes.Status200OK)
+                .WithTags("User");
             endpoints.MapPost("/api/v1/User/login", (UserDto userDto, IUserService service) =>
                 service.Login(userDto))
                 .AllowAnonymous()
@@ -32,8 +34,9 @@ namespace Modules.MainModule
                 .AllowAnonymous()
                 .Produces(StatusCodes.Status201Created)
                 .WithTags("User");
+            endpoints.MapPut("/api/v1/User", (UserRegister userRegist, HttpContext httpContext, IUserService service) =>
+                service.Put(userRegist, httpContext));
             // endpoints.MapGet("/api/v1/User/{id}", (IUserService service) => service.Get);
-            // endpoints.MapPut("/api/v1/User/{id}", (IUserService service) => service.Put);
             // endpoints.MapDelete("/api/v1/User/{id}", (IUserService service) => service.Delete);
 
             return endpoints;
