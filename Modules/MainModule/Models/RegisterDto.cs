@@ -1,6 +1,6 @@
 namespace Modules.MainModule.Models
 {
-    public class UserRegister
+    public class RegisterDto
     {
         public string UserName { get; set; } = null!;
         public string Mail { get; set; } = null!;
