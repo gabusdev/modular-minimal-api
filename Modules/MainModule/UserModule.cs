@@ -44,7 +44,7 @@ namespace Modules.MainModule
                 service.Put(userRegist, httpContext))
                 .WithTags("User");
             // POST To create new todo for current user
-            endpoints.MapPost("/api/v1/User/todo", (TodoDto todoDto, HttpContext httpContext, ITodoService service) =>
+            endpoints.MapPost("/api/v1/User/todo", (CreateTodoDto todoDto, HttpContext httpContext, ITodoService service) =>
                 service.Add(todoDto, httpContext)
             ).WithTags("Todos");
             // GET All todos of current user
@@ -54,7 +54,7 @@ namespace Modules.MainModule
             // DELETE Selected todo
             endpoints.MapDelete("/api/v1/User/todo/{id}", (string id, HttpContext cont, ITodoService service) =>
                 service.Delete(id, cont)
-            );
+            ).WithTags("Todos");
 
             // endpoints.MapGet("/api/v1/User/{id}", (IUserService service) => service.Get);
             // endpoints.MapDelete("/api/v1/User/{id}", (IUserService service) => service.Delete);

@@ -13,14 +13,9 @@ namespace Modules.MainModule.Services
         {
             _context = context;
         }
-        public async Task<IResult> Add(TodoDto todoDto, HttpContext httpContext)
+        public async Task<IResult> Add(CreateTodoDto todoDto, HttpContext httpContext)
         {
-            // var identity = httpContext.User.Identity as ClaimsIdentity;
-            // if (identity == null)
-            // {
-            //     return Results.BadRequest();
-            // }
-            string userId = (await GetCurrent(httpContext)).Id;
+            string userId = (await GetCurrentUser(httpContext)).Id;
 
             Todo newTodo = new Todo
             {
@@ -36,20 +31,13 @@ namespace Modules.MainModule.Services
         }
         public async Task<IResult> GetAll(HttpContext cont)
         {
-            // var identity = cont.User.Identity as ClaimsIdentity;
-            // if (identity == null)
-            // {
-            //     return Results.BadRequest();
-            // }
-            // string userId = identity.FindFirst(ClaimTypes.Sid)!.Value;
-
-            // User user = await _context.Users.Include(u => u.Todos).AsSplitQuery().FirstAsync(u => u.Id == userId);
-            User user = await GetCurrent(cont);
+            User user = await GetCurrentUser(cont);
             List<TodoDto> userTodos = new List<TodoDto>();
             foreach (var item in user.Todos)
             {
                 userTodos.Add(new TodoDto
                 {
+                    Id = item.Id,
                     Name = item.Name,
                     IsDone = item.IsDone
                 });
@@ -63,7 +51,7 @@ namespace Modules.MainModule.Services
             {
                 return Results.NotFound();
             }
-            if (todoItem.UserId != (await GetCurrent(cont)).Id)
+            if (todoItem.UserId != (await GetCurrentUser(cont)).Id)
             {
                 return Results.BadRequest();
             }
@@ -72,7 +60,7 @@ namespace Modules.MainModule.Services
 
             return Results.NoContent();
         }
-        private async Task<User> GetCurrent(HttpContext cont)
+        private async Task<User> GetCurrentUser(HttpContext cont)
         {
             var identity = (cont.User.Identity as ClaimsIdentity)!;
             // if (identity == null)

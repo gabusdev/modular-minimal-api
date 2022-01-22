@@ -123,11 +123,12 @@ namespace Modules.MainModule.Services
             {
                 viewRoles.Add(item.Name);
             }
-            List<TodoViewModel> viewTodos = new List<TodoViewModel>();
+            List<TodoDto> viewTodos = new List<TodoDto>();
             foreach (var item in user.Todos)
             {
-                viewTodos.Add(new TodoViewModel
+                viewTodos.Add(new TodoDto
                 {
+                    Id = item.Id,
                     Name = item.Name,
                     IsDone = item.IsDone
                 }
