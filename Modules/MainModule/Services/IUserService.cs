@@ -4,9 +4,9 @@ namespace Modules.MainModule.Services
     public interface IUserService
     {
         Task<IResult> GetAll();
-        Task<IResult> Login(UserDto userDto);
-        Task<IResult> Register(UserRegister user);
+        Task<IResult> Login(LoginDto userDto);
+        Task<IResult> Register(RegisterDto user);
         Task<IResult> Info(HttpContext httpContext);
-        Task<IResult> Put(UserRegister userRegist, HttpContext httpContext);
+        Task<IResult> Put(RegisterDto userRegist, HttpContext httpContext);
     }
 }

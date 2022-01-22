@@ -21,14 +21,14 @@ namespace Modules.MainModule.Services
         public async Task<IResult> GetAll()
         {
             List<User> users = await _context.Users.Include(u => u.Roles).Include(u => u.Todos).AsSplitQuery().ToListAsync();
-            List<UserViewModel> viewUsers = new List<UserViewModel>();
+            List<UserDto> viewUsers = new List<UserDto>();
             foreach (var item in users)
             {
                 viewUsers.Add(MakeUserViewModel(item));
             }
             return Results.Ok(viewUsers);
         }
-        public async Task<IResult> Login(UserDto userDto)
+        public async Task<IResult> Login(LoginDto userDto)
         {
             User? user = await _context.Users.Include(u => u.Roles).AsSplitQuery().FirstOrDefaultAsync(u =>
                 u.Username.ToLower().Equals(userDto.UserOrMail.ToLower()) ||
@@ -55,7 +55,7 @@ namespace Modules.MainModule.Services
             }
             return Results.NotFound("Usuario no encontrado");
         }
-        public async Task<IResult> Register(UserRegister userRegist)
+        public async Task<IResult> Register(RegisterDto userRegist)
         {
             var id = Guid.NewGuid().ToString();
             User newUser = new User
@@ -78,51 +78,12 @@ namespace Modules.MainModule.Services
             if (identity != null)
             {
                 string id = identity.FindFirst(ClaimTypes.Sid)!.Value;
-                UserViewModel currentUser = await MakeUserViewModel(id);
+                UserDto currentUser = await MakeUserViewModel(id);
                 return currentUser is null ? Results.BadRequest() : Results.Ok(currentUser);
             }
             return Results.BadRequest();
         }
-        private async Task<User?> GetCurrent(string id)
-        {
-            return await _context.Users.FindAsync(id);
-        }
-        private async Task<UserViewModel> MakeUserViewModel(string id)
-        {
-            User user = await _context.Users.Include("Todos").Include("Roles").AsSplitQuery().FirstAsync(u => u.Id == id);
-            return MakeUserViewModel(user);
-        }
-        private UserViewModel MakeUserViewModel(User user)
-        {
-            List<RoleViewModel> viewRoles = new List<RoleViewModel>();
-            foreach (var item in user.Roles)
-            {
-                viewRoles.Add(new RoleViewModel
-                {
-                    Name = item.Name
-                }
-                );
-            }
-            List<TodoViewModel> viewTodos = new List<TodoViewModel>();
-            foreach (var item in user.Todos)
-            {
-                viewTodos.Add(new TodoViewModel
-                {
-                    Name = item.Name,
-                    IsDone = item.IsDone
-                }
-                );
-            }
-            UserViewModel viewUser = new UserViewModel
-            {
-                Username = user.Username,
-                Mail = user.Mail,
-                Roles = viewRoles,
-                Todos = viewTodos
-            };
-            return viewUser;
-        }
-        public async Task<IResult> Put(UserRegister userRegist, HttpContext httpContext)
+        public async Task<IResult> Put(RegisterDto userRegist, HttpContext httpContext)
         {
             var identity = httpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
@@ -136,7 +97,7 @@ namespace Modules.MainModule.Services
                     currentUser.Pass = _authService.MakeHash(userRegist.Password);
                     _context.Entry(currentUser).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
-                    return await Login(new UserDto
+                    return await Login(new LoginDto
                     {
                         UserOrMail = userRegist.UserName,
                         Password = userRegist.Password
@@ -145,6 +106,42 @@ namespace Modules.MainModule.Services
                 return Results.NotFound();
             }
             return Results.BadRequest();
+        }
+        private async Task<User?> GetCurrent(string id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+        private async Task<UserDto> MakeUserViewModel(string id)
+        {
+            User user = await _context.Users.Include("Todos").Include("Roles").AsSplitQuery().FirstAsync(u => u.Id == id);
+            return MakeUserViewModel(user);
+        }
+        private UserDto MakeUserViewModel(User user)
+        {
+            List<string> viewRoles = new List<string>();
+            foreach (var item in user.Roles)
+            {
+                viewRoles.Add(item.Name);
+            }
+            List<TodoDto> viewTodos = new List<TodoDto>();
+            foreach (var item in user.Todos)
+            {
+                viewTodos.Add(new TodoDto
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    IsDone = item.IsDone
+                }
+                );
+            }
+            UserDto viewUser = new UserDto
+            {
+                Username = user.Username,
+                Mail = user.Mail,
+                Roles = viewRoles,
+                Todos = viewTodos
+            };
+            return viewUser;
         }
     }
 }
